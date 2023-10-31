@@ -32,7 +32,7 @@ namespace API.Controllers
         /// 
         /// </summary>
         /// <param name="dataActVisitCuts"></param>
-        /// <returns>type="View2"</returns>
+        /// <returns>type="View23"</returns>
         [HttpPost("CreateActVisitCutsIdentfiable")]
         public async Task<IActionResult> CrearActaVisitaIdentificable(VisitCutsRegistration dataActVisitCuts)
         {
