@@ -1,0 +1,15 @@
+﻿using Repository.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Repository.Persistence.Repository
+{
+    public interface IWSCheckQuotasSealsLabels
+    {
+        Responses ConsultCheckQuotasSealsLabels(ClaimsIdentity identity, string ipAddress, int nit);
+    }
+}

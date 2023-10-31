@@ -1,0 +1,49 @@
+name: dockercompose655517238545643738
+services:
+  apicupos:
+    build:
+      context: C:\PUBLICACIONES\Source\vital-cupos-api
+      dockerfile: API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:442;http://+:80
+    image: apicupos
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 80
+      protocol: tcp
+    - mode: ingress
+      target: 442
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: C:\Users\NICOL\AppData\Roaming/Microsoft/UserSecrets
+      target: /root/.microsoft/usersecrets
+      read_only: true
+      bind:
+        create_host_path: true
+    - type: bind
+      source: C:\Users\NICOL\AppData\Roaming/ASP.NET/Https
+      target: /root/.aspnet/https
+      read_only: true
+      bind:
+        create_host_path: true
+  db:
+    container_name: MINAMBIENTECUPOS
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: bisa112233
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 1431
+      published: "1431"
+      protocol: tcp
+    restart: always
+networks:
+  default:
+    name: dockercompose655517238545643738_default

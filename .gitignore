@@ -1,0 +1,11 @@
+.vs/
+TestUnit/bin
+TestUnit/obj
+API/bin
+API/obj
+Utilities/bin
+Utilities/obj
+Repository/bin
+Repository/obj
+WebServices/bin
+WebServices/obj
