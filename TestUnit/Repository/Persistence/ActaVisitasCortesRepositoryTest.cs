@@ -20,7 +20,6 @@ namespace TestUnit.Repository.Persistence
 		readonly JwtAuthenticationManager jwtAuthenticationManager;
         readonly string ipAddress = "1";
 		private readonly ClaimsIdentity user;
-		public static SupportDocuments? documentoEnviar;
         public readonly IConfiguration configuration;
 		public readonly IGenericsMethodsHelper genericsMethodsHelper;
 
@@ -346,7 +345,7 @@ namespace TestUnit.Repository.Persistence
 			datos.A007codigoDocumentoOrigenPieles = 1;
 			datos.A007codigoPrecintoymarquilla = 1;
 			datos.A007codigoUsuarioAutoridadCites = 1;
-			datos.A007firmaUsuarioAutoridadCites = new byte[0];
+			datos.A007firmaUsuarioAutoridadCites = Array.Empty<byte>();
 			datos.A007fechaModificacion = 1;
 			datos.A007fechaCreacion = 1;
 			datos.A007fechaActa = DateTime.Now;
@@ -378,7 +377,7 @@ namespace TestUnit.Repository.Persistence
 			datos.A007codigoDocumentoOrigenPieles = 1;
 			datos.A007codigoPrecintoymarquilla = 1;
 			datos.A007codigoUsuarioAutoridadCites = 1;
-			datos.A007firmaUsuarioAutoridadCites = new byte[0];
+			datos.A007firmaUsuarioAutoridadCites = Array.Empty<byte>();
             datos.A007fechaModificacion = 1;
 			datos.A007fechaCreacion = 1;
 			datos.A007fechaActa = DateTime.Now;
@@ -410,7 +409,7 @@ namespace TestUnit.Repository.Persistence
 			datos.A007codigoDocumentoOrigenPieles = 1;
 			datos.A007codigoPrecintoymarquilla = 1;
 			datos.A007codigoUsuarioAutoridadCites = 1;
-			datos.A007firmaUsuarioAutoridadCites = new byte[0];
+			datos.A007firmaUsuarioAutoridadCites = Array.Empty<byte>();
             datos.A007fechaModificacion = 1;
 			datos.A007fechaCreacion = 1;
 			datos.A007fechaActa = DateTime.Now;

@@ -21,7 +21,7 @@ namespace Repository.Persistence.Repository
         private readonly JwtAuthenticationManager jwtAuthenticationManager;
         private readonly IGenericsMethodsHelper genericsMethodsHelper;
         private static List<Files>? documentoEnviar;
-        private readonly IConfiguration configuration;
+        public readonly IConfiguration configuration;
 
         /// <summary>
         /// 

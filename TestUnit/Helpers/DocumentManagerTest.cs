@@ -16,9 +16,8 @@ namespace TestUnit.Helpers
     {
         //Se debe colocar un usuario administrador valido para la ejecucion de las pruebas unitarias
         private readonly DBContext _context;
-        private DocumentManager repository;
-        readonly JwtAuthenticationManager jwtAuthenticationManager;
-        string ipAddress = "1";
+        private readonly DocumentManager repository;
+        readonly string ipAddress = "1";
 
         public DocumentManagerTest()
         {
@@ -45,7 +44,7 @@ namespace TestUnit.Helpers
         {
             var dato = _context.AdmintT009Documentos.FirstOrDefault(x => x.A009estadoRegistro != 0);
 
-            string urlFTP = dato.A009url;
+            string urlFTP = dato?.A009url ?? "";
             var r = repository.ConvertirArchivoToBase64(urlFTP);
             Assert.True(r != null);
         }

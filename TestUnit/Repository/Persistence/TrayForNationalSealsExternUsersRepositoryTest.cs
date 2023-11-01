@@ -19,7 +19,6 @@ namespace TestUnit.API
         readonly JwtAuthenticationManager jwtAuthenticationManager;
         readonly string ipAddress = "1";
         private readonly ClaimsIdentity user;
-        public static SupportDocuments? documentoEnviar;
         public readonly IGenericsMethodsHelper genericsMethodsHelper;
 
         public class FakeEstadosCuposSettings : IOptions<EstadosCuposSettings>

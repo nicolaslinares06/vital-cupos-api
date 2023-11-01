@@ -20,7 +20,6 @@ namespace TestUnit.API.Controllers
 		readonly JwtAuthenticationManager jwtAuthenticationManager;
 		private readonly ClaimsIdentity user;
 		
-		public static SupportDocuments? documentoEnviar;
         public ResolutionRegisterControllerTest()
 		{
 			var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);

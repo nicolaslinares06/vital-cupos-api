@@ -16,7 +16,6 @@ namespace TestUnit.API
 		private readonly FishQuotaRepository repository;
 		readonly JwtAuthenticationManager jwtAuthenticationManager;
 		private readonly ClaimsIdentity user;
-		public static SupportDocuments? documentoEnviar;
 
 		public FishQuotaRepositoryTest()
 		{

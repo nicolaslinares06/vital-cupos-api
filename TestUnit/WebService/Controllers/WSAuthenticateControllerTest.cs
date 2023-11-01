@@ -16,7 +16,6 @@ namespace TestUnit.WebService.Controllers
 		private readonly AuthenticateController controller;
 		readonly JwtAuthenticationManager jwtAuthenticationManager;
 		private readonly ClaimsIdentity user;
-		public static SupportDocuments? documentoEnviar;
 
 		public WSAuthenticateControllerTest()
 		{

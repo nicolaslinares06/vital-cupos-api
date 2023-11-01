@@ -10,73 +10,75 @@ using System.Security.Cryptography;
 using Web.Models;
 using static Repository.Helpers.Models.ReportesPrecintosModels;
 
-public class SealsReportsControllerTests
+namespace TestUnit.API.Controllers
 {
-    //Se debe colocar un usuario administrador valido para la ejecucion de las pruebas unitarias
-    private readonly DBContext _context;
-    private readonly SealsReportsController controller;
-    private readonly ClaimsIdentity user;
-    public static SupportDocuments? documentoEnviar;
-    public readonly IReportesPrecintosRepository reportes;
-
-    public SealsReportsControllerTests()
+    public class SealsReportsControllerTests
     {
-        var authenticationType = "AuthenticationTypes.Federation";
+        //Se debe colocar un usuario administrador valido para la ejecucion de las pruebas unitarias
+        private readonly DBContext _context;
+        private readonly SealsReportsController controller;
+        private readonly ClaimsIdentity user;
+        public readonly IReportesPrecintosRepository reportes;
 
-        user = new ClaimsIdentity(authenticationType);
-        user.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "1"));
-        user.AddClaim(new Claim("aud", "CUPOS"));
-        user.AddClaim(new Claim("exp", "1668005030"));
-        user.AddClaim(new Claim("iat", "1668004130"));
-        user.AddClaim(new Claim("nbf", "1668004130"));
-
-        _context = new DBContext();
-
-        controller = new SealsReportsController(reportes, new LoggerFactory().CreateLogger<SealsReportsController>());
-
-        controller.ControllerContext = new ControllerContext
+        public SealsReportsControllerTests()
         {
-            HttpContext = new DefaultHttpContext
+            var authenticationType = "AuthenticationTypes.Federation";
+
+            user = new ClaimsIdentity(authenticationType);
+            user.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", "1"));
+            user.AddClaim(new Claim("aud", "CUPOS"));
+            user.AddClaim(new Claim("exp", "1668005030"));
+            user.AddClaim(new Claim("iat", "1668004130"));
+            user.AddClaim(new Claim("nbf", "1668004130"));
+
+            _context = new DBContext();
+
+            controller = new SealsReportsController(reportes, new LoggerFactory().CreateLogger<SealsReportsController>());
+
+            controller.ControllerContext = new ControllerContext
             {
-                User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                HttpContext = new DefaultHttpContext
                 {
-                        new Claim(ClaimTypes.Name, "Administrador")
-                }, "someAuthTypeName"))
-            }
-        };
-    }
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                            new Claim(ClaimTypes.Name, "Administrador")
+                    }, "someAuthTypeName"))
+                }
+            };
+        }
 
-    [Fact]
-    public void ConsultarDatosPrecintos()
-    {
-
-        var resolucion = _context.CupostT019Solicitudes.FirstOrDefault(x => x.A019EstadoRegistro != 0);
-        var empresa = _context.CupostT001Empresas.FirstOrDefault(x => x.A001estadoRegistro != 0);
-
-        var datos = new SealFilters
+        [Fact]
+        public void ConsultarDatosPrecintos()
         {
-            ResolutionNumber = resolucion?.A019NumeroRadicacion ?? "",
-            Establishment = 0,
-            NIT = empresa?.A001nit ?? 0,
-            RadicationDate = DateTime.Now,
-            SpecificSearch = 0
-        };
 
-        // Act
-        var result = controller.ConsultarDatosPrecintos(datos);
+            var resolucion = _context.CupostT019Solicitudes.FirstOrDefault(x => x.A019EstadoRegistro != 0);
+            var empresa = _context.CupostT001Empresas.FirstOrDefault(x => x.A001estadoRegistro != 0);
 
-        // Assert
-        Assert.NotNull(result);
-        // Add more assertions as needed
-    }
+            var datos = new SealFilters
+            {
+                ResolutionNumber = resolucion?.A019NumeroRadicacion ?? "",
+                Establishment = 0,
+                NIT = empresa?.A001nit ?? 0,
+                RadicationDate = DateTime.Now,
+                SpecificSearch = 0
+            };
 
-    [Fact]
-    public void ConsultarEstablecimientos()
-    {
-        // Act
-        var result = controller.ConsultarEstablecimientos();
-        // Assert
-        Assert.NotNull(result);
-        // Add more assertions as needed
+            // Act
+            var result = controller.ConsultarDatosPrecintos(datos);
+
+            // Assert
+            Assert.NotNull(result);
+            // Add more assertions as needed
+        }
+
+        [Fact]
+        public void ConsultarEstablecimientos()
+        {
+            // Act
+            var result = controller.ConsultarEstablecimientos();
+            // Assert
+            Assert.NotNull(result);
+            // Add more assertions as needed
+        }
     }
 }

@@ -89,9 +89,9 @@ namespace Repository.Helpers
             {
                 if ((valorActual != null) && ((transaccionId == 2) || (transaccionId == 3) || (transaccionId == 4)))
                 {
-                    string[] camposAux = campos as string[] ?? new string[0]; 
-                    string[] valorActualAux = valorActual as string[] ?? new string[0]; 
-                    string[] valorAnteriorAux = valorAnterior as string[] ?? new string[0];
+                    string[] camposAux = campos as string[] ??  Array.Empty<string>(); 
+                    string[] valorActualAux = valorActual as string[] ??  Array.Empty<string>(); 
+                    string[] valorAnteriorAux = valorAnterior as string[] ??  Array.Empty<string>();
                     List<AdmintT013Auditorium> audList = new List<AdmintT013Auditorium>();
                     //debe entrar solo si es 2, 3 o 4
                     if(camposAux != null)
@@ -178,7 +178,7 @@ namespace Repository.Helpers
             return aud;
         }
 
-        public void getValues(object Object, ref List<string> valores)
+        public static void getValues(object Object, ref List<string> valores)
         {
             valores = new List<string>();
             Type myType = Object.GetType();

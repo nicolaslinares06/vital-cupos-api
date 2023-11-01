@@ -21,7 +21,6 @@ namespace TestUnit.API.Controllers
 		private readonly NationalSealsManagementController gestionPrencintosNacionales;
 		readonly JwtAuthenticationManager jwtAuthenticationManager;
 		private readonly ClaimsIdentity user;
-		public static SupportDocuments? documentoEnviar;
         public readonly GenericsMethodsHelper genericsMethodsHelper;
 
         public NationalSealsManagementControllerTest()

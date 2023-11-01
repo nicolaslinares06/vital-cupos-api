@@ -20,7 +20,7 @@ namespace Repository.Persistence.Repository
         private readonly JwtAuthenticationManager jwtAuthenticationManager;
         private readonly IGenericsMethodsHelper genericsMethodsHelper;
         private readonly EstadosCuposSettings _estadosCuposSettings;
-        private readonly IConfiguration configuration;
+        public readonly IConfiguration configuration;
 
         public CoordinatorAssignRequestAnalystsGpnRepository(DBContext context, JwtAuthenticationManager jwtAuthenticationManager,
             IGenericsMethodsHelper genericsMethodsHelper, IOptions<EstadosCuposSettings> estadosCuposSettings)

@@ -17,7 +17,6 @@ namespace TestUnit.API.Controllers
 		//Se debe colocar un usuario administrador valido para la ejecucion de las pruebas unitarias
 		private readonly CompanyAttendanceReportsController controller;
 		private readonly ClaimsIdentity user;
-		public static SupportDocuments? documentoEnviar;
         public readonly IReportesEmpresasMarcaje reportesEmpresasMarcaje;
 
         public ReportesEmpresasMarcajesControllerTest()

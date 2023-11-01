@@ -18,7 +18,6 @@ namespace TestUnit.WebService.Controllers
         private readonly VitalController controller;
         readonly JwtAuthenticationManager jwtAuthenticationManager;
         private readonly ClaimsIdentity user;
-        public static SupportDocuments? documentoEnviar;
 
         public VitalControllerTest()
         {

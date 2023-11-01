@@ -17,7 +17,6 @@ namespace Repository.Persistence.Repository
 		private readonly CoordinatorAssignRequestAnalystsGpnRepository repository;
 		readonly JwtAuthenticationManager jwtAuthenticationManager;
 		private readonly ClaimsIdentity user;
-		public static SupportDocuments? documentoEnviar;
         public readonly IGenericsMethodsHelper genericsMethodsHelper;
 
         public class FakeEstadosCuposSettings : IOptions<EstadosCuposSettings>

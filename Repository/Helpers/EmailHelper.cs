@@ -71,7 +71,7 @@ namespace Repository.Helpers
 
         public static async Task sendApprovalMail(string correoPara, string nombre, string asunto, string body, Files document)
         {
-            string[] valores = document.adjuntoBase64 != null ? document.adjuntoBase64.Split("data:application/pdf;base64,") : new string[0];
+            string[] valores = document.adjuntoBase64 != null ? document.adjuntoBase64.Split("data:application/pdf;base64,") :  Array.Empty<string>();
 
             string cuerpo = "Cordial saludo,<br /><br />" +
                             "De manera atenta, remito para lo de sus competencias la numeración de unidades de<br />" +

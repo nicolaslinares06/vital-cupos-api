@@ -21,8 +21,6 @@ namespace TestUnit.WebService.Controllers
 		readonly JwtAuthenticationManager jwtAuthenticationManager;
 		private readonly ClaimsIdentity user;
 		
-		public static SupportDocuments? documentoEnviar;
-
         public WSUpdatingInformationQuotasSealsTagsControllerTest()
 		{
 			var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);

@@ -20,7 +20,7 @@ namespace Repository.Persistence.Repository
     {
         private readonly DBContext context;
         private readonly JwtAuthenticationManager jwtAuthenticationManager;
-        private readonly IConfiguration configuration;
+        public readonly IConfiguration configuration;
 
         public ReportesPrecintosRepository(DBContext context, JwtAuthenticationManager jwtAuthenticationManager)
         {
@@ -69,8 +69,6 @@ namespace Repository.Persistence.Repository
             if(filtros.ResolutionNumber != "" && filtros.ResolutionNumber != null)
                 query = query.Where(x => x.solicitud.A019NumeroRadicacion == filtros.ResolutionNumber);
 
-            string filtroFecha = filtros.RadicationDate?.ToString("dd/MM/yyyy");
-
             if (filtros.RadicationDate != null)
                 query = query.Where(x => x.solicitud.A019FechaRadicacion == filtros.RadicationDate);
 
@@ -94,7 +92,7 @@ namespace Repository.Persistence.Repository
                              where registro.solicitud.A019CodigoCiudad == ciu.PkT004codigo
                              select ciu;
 
-                tempData.City = ciudad.FirstOrDefault().A004nombre;
+                tempData.City = ciudad.FirstOrDefault()?.A004nombre;
 
                 var especimen = from especiman in context.AdmintT005Especimen
                                 where registro.solicitud.A019CodigoEspecieExportar == especiman.PkT005codigo
@@ -105,7 +103,7 @@ namespace Repository.Persistence.Repository
 
                 if (especimen.Any())
                 {
-                    tempData.Species = especimen.FirstOrDefault().especiman.A005nombreCientifico;
+                    tempData.Species = especimen.FirstOrDefault()?.especiman.A005nombreCientifico;
                 }
                 else
                 {
@@ -124,11 +122,11 @@ namespace Repository.Persistence.Repository
 
                 if (PyM.Any())
                 {
-                    tempData.InitialNumber = PyM.FirstOrDefault().marquillas.A006numeroInicial is null ? "" : PyM.FirstOrDefault().marquillas.A006numeroInicial;
-                    tempData.FinalNumber = PyM.FirstOrDefault().marquillas.A006numeroFinal is null ? "" : PyM.FirstOrDefault().marquillas.A006numeroFinal;
-                    tempData.InitialInternalNumber = PyM.FirstOrDefault().marquillas.A006numeroInicialNumerico;
-                    tempData.FinalInternalNumber = PyM.FirstOrDefault().marquillas.A006numeroFinalNumerico;
-                    tempData.Color = PyM.FirstOrDefault().A008valor;
+                    tempData.InitialNumber = PyM.FirstOrDefault()?.marquillas.A006numeroInicial is null ? "" : PyM.FirstOrDefault()?.marquillas.A006numeroInicial;
+                    tempData.FinalNumber = PyM.FirstOrDefault()?.marquillas.A006numeroFinal is null ? "" : PyM.FirstOrDefault()?.marquillas.A006numeroFinal;
+                    tempData.InitialInternalNumber = PyM.FirstOrDefault()?.marquillas.A006numeroInicialNumerico;
+                    tempData.FinalInternalNumber = PyM.FirstOrDefault()?.marquillas.A006numeroFinalNumerico;
+                    tempData.Color = PyM.FirstOrDefault()?.A008valor;
                 }
                 else
                 {
@@ -145,7 +143,7 @@ namespace Repository.Persistence.Repository
                                     where registro.solicitud.A019AnalistaAsignacion == usuario.PkT012codigo
                                     select usuario;
 
-                    tempData.Analyst = evaluador.FirstOrDefault().A012primerNombre + " " + evaluador.FirstOrDefault().A012primerApellido;
+                    tempData.Analyst = evaluador.FirstOrDefault()?.A012primerNombre + " " + evaluador.FirstOrDefault()?.A012primerApellido;
                 }
                 else
                 {

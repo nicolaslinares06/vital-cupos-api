@@ -19,8 +19,6 @@ namespace TestUnit.API.Controllers
 		private readonly SaleDocumentController controller;
 		readonly JwtAuthenticationManager jwtAuthenticationManager;
 		private readonly ClaimsIdentity user;
-		
-		public static SupportDocuments? documentoEnviar;
 
         public SaleDocumentControllerTest()
 		{

@@ -17,8 +17,8 @@ namespace Repository.Persistence.Repository
     {
         private readonly DBContext _context;
         private readonly JwtAuthenticationManager jwtAuthenticationManager;
-        private readonly SettingsHelper setting;
-        private IConfiguration configuration;
+        public readonly SettingsHelper setting;
+        public readonly IConfiguration configuration;
 
         public ReportesMarquillasRepository(DBContext context, JwtAuthenticationManager jwtAuthenticationManager)
         {

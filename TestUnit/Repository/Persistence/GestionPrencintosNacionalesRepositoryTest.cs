@@ -19,7 +19,6 @@ namespace TestUnit.API
         readonly JwtAuthenticationManager jwtAuthenticationManager;
         readonly string ipAddress = "1";
         private readonly ClaimsIdentity user;
-        public static SupportDocuments? documentoEnviar;
         public readonly IGenericsMethodsHelper genericsMethodsHelper;
 
         public GestionPrencintosNacionalesRepositoryTest()
@@ -382,9 +381,9 @@ namespace TestUnit.API
             var precinto = _context.AdmintT008Parametricas.FirstOrDefault(x => x.A008estadoRegistro != 0 && x.A008valor == "Precintos");
             var maquillaMinisterio = _context.AdmintT008Parametricas.FirstOrDefault(x => x.A008estadoRegistro != 0 && x.A008valor == "Marquillas con verificación de corte certificada por ministerio");
             var maquillasAutoridad = _context.AdmintT008Parametricas.FirstOrDefault(x => x.A008estadoRegistro != 0 && x.A008valor == "Marquillas con verificación de corte certificada por otra autoridad ambiental");
-            var dato1 = _context.CupostT019Solicitudes.FirstOrDefault(x => x.A019TipoSolicitud == precinto.PkT008codigo);
-            var dato2 = _context.CupostT019Solicitudes.FirstOrDefault(x => x.A019TipoSolicitud == maquillaMinisterio.PkT008codigo);
-            var dato3 = _context.CupostT019Solicitudes.FirstOrDefault(x => x.A019TipoSolicitud == maquillasAutoridad.PkT008codigo);
+            var dato1 = _context.CupostT019Solicitudes.FirstOrDefault(x => x.A019TipoSolicitud == (precinto != null ? precinto.PkT008codigo : 0));
+            var dato2 = _context.CupostT019Solicitudes.FirstOrDefault(x => x.A019TipoSolicitud == (maquillaMinisterio != null ? maquillaMinisterio.PkT008codigo : 0));
+            var dato3 = _context.CupostT019Solicitudes.FirstOrDefault(x => x.A019TipoSolicitud == (maquillasAutoridad != null ? maquillasAutoridad.PkT008codigo : 0));
 
             List<MailApproval> lista = new List<MailApproval>();
 

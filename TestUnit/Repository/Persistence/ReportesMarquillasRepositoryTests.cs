@@ -52,7 +52,7 @@ namespace Repository.Persistence.Test
 
             filtros.DateFrom = null;
             filtros.DateTo = null;
-            filtros.RadicationNumber = dato.A019NumeroRadicacion;
+            filtros.RadicationNumber = dato?.A019NumeroRadicacion ?? "";
 
             // Act
             respuesta = repository.ConsultarMarquillas(user, filtros);

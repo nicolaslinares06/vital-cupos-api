@@ -7,7 +7,7 @@ namespace Repository.Helpers
 {
     public class SettingsHelper
     {
-        private readonly IConfiguration configuration;
+        public readonly IConfiguration configuration;
         [ExcludeFromCodeCoverage]
         public SettingsHelper()
         {

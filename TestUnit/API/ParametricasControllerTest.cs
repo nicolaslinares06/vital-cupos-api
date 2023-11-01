@@ -23,8 +23,6 @@ namespace TestUnit.API
         readonly string ipAddress = "1";
         private readonly ClaimsIdentity user;
         
-        public static SupportDocuments? documentoEnviar;
-
         public ParametricasControllerTest()
         {
             var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);

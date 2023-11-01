@@ -22,7 +22,6 @@ namespace TestUnit.API.Controllers
 		private readonly TrayForNationalSealsExternUsersController TrayForNationalSealsExternUsers;
 		readonly JwtAuthenticationManager jwtAuthenticationManager;
 		private readonly ClaimsIdentity user;
-		public static SupportDocuments? documentoEnviar;
 		public readonly IGenericsMethodsHelper genericsMethodsHelper;
 
         public class FakeEstadosCuposSettings : IOptions<EstadosCuposSettings>

@@ -19,7 +19,6 @@ namespace TestUnit.API.Controllers
 		private readonly DBContext _context;
 		readonly JwtAuthenticationManager jwtAuthenticationManager;
 		private readonly ClaimsIdentity user;
-		public static SupportDocuments? documentoEnviar;
 
         public AssignmentRequestControllerTest()
 		{

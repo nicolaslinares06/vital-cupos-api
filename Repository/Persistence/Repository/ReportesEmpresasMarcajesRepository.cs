@@ -17,7 +17,7 @@ namespace Repository.Persistence.Repository
     {
         private readonly DBContext context;
         private readonly JwtAuthenticationManager jwtAuthenticationManager;
-        private readonly IConfiguration configuration;
+        public readonly IConfiguration configuration;
 
         public ReportesEmpresasMarcajesRepository(DBContext context, JwtAuthenticationManager jwtAuthenticationManager, IConfiguration configuration)
         {

@@ -23,8 +23,6 @@ namespace TestUnit.API
         readonly JwtAuthenticationManager jwtAuthenticationManager;
         private readonly ClaimsIdentity user;
         
-        public static SupportDocuments? documentoEnviar;
-
         public ControlFishRequestControllerTest()
         {
             var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);

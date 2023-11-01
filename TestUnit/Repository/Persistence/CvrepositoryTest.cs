@@ -21,7 +21,6 @@ namespace TestUnit.Repository.Persistence
         private readonly Cvrepository repository;
         readonly JwtAuthenticationManager jwtAuthenticationManager;
         private readonly ClaimsIdentity user;
-        public static SupportDocuments? documentoEnviar;
 
         public CvrepositoryTest()
         {

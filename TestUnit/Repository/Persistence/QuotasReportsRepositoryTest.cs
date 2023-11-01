@@ -21,8 +21,6 @@ namespace TestUnit.Repository.Persistence
         readonly JwtAuthenticationManager jwtAuthenticationManager;
         private readonly ClaimsIdentity user;
         
-        public static SupportDocuments? documentoEnviar;
-
         public QuotasReportsRepositoryTest()
         {
             var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);

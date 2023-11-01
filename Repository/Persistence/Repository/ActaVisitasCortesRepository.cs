@@ -19,7 +19,7 @@ namespace Repository.Persistence.Repository
     {
         private readonly DBContext context;
         private readonly JwtAuthenticationManager jwtAuthenticationManager;
-        private readonly IConfiguration configuration;
+        public readonly IConfiguration configuration;
         private readonly IGenericsMethodsHelper genericsMethodsHelper;
         private readonly LogManager logManager;
 
@@ -1818,7 +1818,7 @@ namespace Repository.Persistence.Repository
         }
 
         [ExcludeFromCodeCoverage]
-        private TiposArchivos TipoArchivo(string extension)
+        private static TiposArchivos TipoArchivo(string extension)
         {
 
 
@@ -1862,7 +1862,7 @@ namespace Repository.Persistence.Repository
             }
         }
 
-        private int obtenerColumna(string referencia)
+        private  static int obtenerColumna(string referencia)
         {
             int columna1 = 0;
             int columna2 = 0;
@@ -1899,7 +1899,7 @@ namespace Repository.Persistence.Repository
         }
 
         [ExcludeFromCodeCoverage]
-        private bool ValidarCeldaColumnas(int indiceFila, string[,] infoExcel)
+        private static bool ValidarCeldaColumnas(int indiceFila, string[,] infoExcel)
         {
 
             bool datosValido = true;
@@ -1933,8 +1933,6 @@ namespace Repository.Persistence.Repository
             }
 
             return datosValido;
-
-
 
         }
 
@@ -2092,7 +2090,7 @@ namespace Repository.Persistence.Repository
         }
 
         [ExcludeFromCodeCoverage]
-        private bool ValidarTipoDatoEntero(string valor)
+        private static bool ValidarTipoDatoEntero(string valor)
         {
             bool datoValido = false;
             int numero = 0;
@@ -2103,7 +2101,7 @@ namespace Repository.Persistence.Repository
             return datoValido;
         }
 
-        private bool ValidarDatoVacioNulo(string valor)
+        private static bool ValidarDatoVacioNulo(string valor)
         {
             bool datoValido = false;
             if (!String.IsNullOrEmpty(valor.Trim()))
@@ -2111,7 +2109,7 @@ namespace Repository.Persistence.Repository
             return datoValido;
         }
 
-        private bool ValidarDatoFecha(string valor)
+        private static bool ValidarDatoFecha(string valor)
         {
             bool datoValido = false;
 
