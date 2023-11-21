@@ -822,6 +822,8 @@ namespace Repository.Persistence.Repository
             Metodos metodo = new Metodos(_context);
             var codigoUsuario = Convert.ToInt32(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var uri = metodo.GuardarArchivoFtp(document);
+            if (String.IsNullOrEmpty(uri))
+                return;
 
             AdmintT009Documento docNuevo = new AdmintT009Documento();
             docNuevo.A009fechaCreacion = DateTime.Now;
@@ -863,6 +865,8 @@ namespace Repository.Persistence.Repository
             Metodos metodo = new Metodos(_context);
             var codigoUsuario = Convert.ToInt32(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var uri = metodo.GuardarArchivoFtp(document);
+            if (String.IsNullOrEmpty(uri))
+                return;
 
             AdmintT009Documento docNuevo = new AdmintT009Documento();
             docNuevo.A009fechaCreacion = DateTime.Now;

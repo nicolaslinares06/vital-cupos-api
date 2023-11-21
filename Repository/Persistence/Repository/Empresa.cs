@@ -322,6 +322,9 @@ namespace Repository.Persistence.Repository
                         if (contDocNove == 0)
                         {
                             string uri = documentManager.GuardarArchivoFTP(arc);
+                            if(String.IsNullOrEmpty(uri))
+                                return ResponseManager.generaRespuestaGenerica(StringHelper.msgIntenteNuevamente, "", token, true);
+
                             AdmintT009Documento docNuevo = this.documentManager.GuardarDocumento(ipAddress, codigoUsuario, (arc.nombreAdjunto != null ? arc.nombreAdjunto : ""), uri);
 
                             if (docNuevo.PkT009codigo != null)
