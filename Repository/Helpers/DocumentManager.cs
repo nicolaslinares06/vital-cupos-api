@@ -17,60 +17,70 @@ namespace Repository.Helpers
 
         public string GuardarArchivoFTP(Archivo documento)
         {
-            var query = _context.AdmintT008Parametricas.Where(p => p.A008parametrica == "SERVIDOR FTP").ToList();
-            string urlAdjjunto = "";
-            string Puerto = "";
-            string usuraio = "";
-            string clave = "";
-            foreach (var c in query)
+
+            try
             {
-                switch (c.A008descripcion)
+                var query = _context.AdmintT008Parametricas.Where(p => p.A008parametrica == "SERVIDOR FTP").ToList();
+                string urlAdjjunto = "";
+                string Puerto = "";
+                string usuraio = "";
+                string clave = "";
+                foreach (var c in query)
                 {
-                    case "URL":
-                        urlAdjjunto = c.A008valor;
-                        break;
-                    case "PUERTO":
-                        Puerto = c.A008valor;
-                        break;
-                    case "USUARIO":
-                        usuraio = c.A008valor;
-                        break;
-                    case "CONTRASEÑA":
-                        clave = c.A008valor;
-                        break;
+                    switch (c.A008descripcion)
+                    {
+                        case "URL":
+                            urlAdjjunto = c.A008valor;
+                            break;
+                        case "PUERTO":
+                            Puerto = c.A008valor;
+                            break;
+                        case "USUARIO":
+                            usuraio = c.A008valor;
+                            break;
+                        case "CONTRASEÑA":
+                            clave = c.A008valor;
+                            break;
+                    }
                 }
+                Stream? requestStream = null;
+
+                string eliminar = "data:" + documento.tipoAdjunto + ";base64,";
+
+                if (documento.adjuntoBase64 != null)
+                {
+                    string SinData = documento.adjuntoBase64.Replace(eliminar, String.Empty);
+
+                    byte[] buffer = Convert.FromBase64String(SinData);
+
+                    string uri = "ftp://" + urlAdjjunto + ":" + Puerto + "/CUPOS/docs/" + documento.nombreAdjunto;
+
+
+                    FtpWebRequest request = (FtpWebRequest)WebRequest.Create(uri);
+                    request.Method = WebRequestMethods.Ftp.UploadFile;
+                    request.ContentLength = buffer.Length;
+                    request.EnableSsl = false;
+                    request.Credentials = new NetworkCredential(usuraio, clave);
+
+                    requestStream = request.GetRequestStream();
+
+                    requestStream.Write(buffer, 0, buffer.Length);
+
+                    if (requestStream != null)
+                        requestStream.Close();
+
+                    return uri;
+                }
+
+                return "";
+
             }
-            Stream? requestStream = null;
-
-            string eliminar = "data:" + documento.tipoAdjunto + ";base64,";
-
-            if(documento.adjuntoBase64 != null)
+            catch 
             {
-                string SinData = documento.adjuntoBase64.Replace(eliminar, String.Empty);
 
-                byte[] buffer = Convert.FromBase64String(SinData);
-
-                string uri = "ftp://" + urlAdjjunto + ":" + Puerto + "/CUPOS/docs/" + documento.nombreAdjunto;
-
-                #pragma warning disable SYSLIB0014
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(uri);
-                request.Method = WebRequestMethods.Ftp.UploadFile;
-                request.ContentLength = buffer.Length;
-                request.EnableSsl = false;
-                request.Credentials = new NetworkCredential(usuraio, clave);
-
-                requestStream = request.GetRequestStream();
-
-                requestStream.Write(buffer, 0, buffer.Length);
-
-                #pragma warning disable S2589
-                if (requestStream != null)
-                    requestStream.Close();
-
-                return uri;
+                return "";
             }
-
-            return "";
+           
         }
 
         [ExcludeFromCodeCoverage]
