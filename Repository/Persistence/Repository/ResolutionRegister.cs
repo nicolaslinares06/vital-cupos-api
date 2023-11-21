@@ -1,4 +1,5 @@
 ﻿using API.Helpers;
+using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -714,6 +715,9 @@ namespace Repository.Persistence.Repository
 
                 if (bs != null)
                 {
+                    var especieRepetida = ValidateQuotaSpeciesRepeats(datas.newExportSpeciesData, bs);
+                    if(especieRepetida > 0)
+                        return ResponseManager.generaRespuestaGenerica("No se puede guardar, hay duplicacion de especie y año de producción", false, token, false);
 
                     foreach (var cupo in datas.newExportSpeciesData)
                     {
@@ -925,6 +929,31 @@ namespace Repository.Persistence.Repository
 
             _context.SaveChanges();
             return ResponseManager.generaRespuestaGenerica(StringHelper.msgEliminadoExitoso, true, token, false);
+        }
+
+        private int ValidateQuotaSpeciesRepeats(List<ExportSpecimens> especies, CupostT001Empresa empresa)
+        {
+            int conteo = 0;
+
+            if(especies.Any())
+            {
+                foreach(var item in especies)
+                {
+
+
+                    conteo = (from especie in _context.CupostT005Especieaexportars
+                              join cupoEmpresa in _context.CupostT002Cupos
+                              on especie.A005codigoCupo equals cupoEmpresa.PkT002codigo
+                              where especie.A005codigoEspecie == item.speciesCode &&
+                                  especie.A005añoProduccion == item.productionYear &&
+                                  cupoEmpresa.A002codigoEmpresa == empresa.PkT001codigo
+                              select especie).Count();
+
+                }
+            }
+
+            return conteo;
+
         }
 
     }
