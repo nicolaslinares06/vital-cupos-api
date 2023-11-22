@@ -941,7 +941,7 @@ namespace Repository.Persistence.Repository
                 {
 
 
-                    conteo = (from especie in _context.CupostT005Especieaexportars
+                    conteo += (from especie in _context.CupostT005Especieaexportars
                               join cupoEmpresa in _context.CupostT002Cupos
                               on especie.A005codigoCupo equals cupoEmpresa.PkT002codigo
                               where especie.A005codigoEspecie == item.speciesCode &&
