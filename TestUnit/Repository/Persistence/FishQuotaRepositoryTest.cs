@@ -241,10 +241,10 @@ namespace TestUnit.API
 
 			listfish.Add(fish); 
 
-            var r = repository.UpdateFishQuotaAmount(user, code, listfish, listfish);
+            var r = repository.UpdateFishQuotaAmount(user, code, listfish);
 			Assert.True(r != null);
 
-            r = repository.UpdateFishQuotaAmount(new ClaimsIdentity(), code, listfish, listfish);
+            r = repository.UpdateFishQuotaAmount(new ClaimsIdentity(), code, listfish);
             Assert.True(r != null);
         }
 
@@ -278,12 +278,13 @@ namespace TestUnit.API
             file.attachmentName = "NombreDelAdjuntoEjemplo.pdf";
             file.attachmentType = "application/pdf";
             file.tempAction = "AcciónTemporalEjemplo";
+			decimal code = 1;
 
             list.Add(file);
 
             try
             {
-                repository.UpdateDocumentsRemoved(user, list);
+                repository.UpdateDocumentsRemoved(user, list, code);
                 // El método se ejecutó sin errores, no se generó una excepción
                 Assert.True(true);
             }

@@ -1,5 +1,7 @@
 ﻿using API.Helpers;
+using DocumentFormat.OpenXml.InkML;
 using iTextSharp.text.pdf.codec.wmf;
+using Org.BouncyCastle.Utilities.Net;
 using Repository.Helpers;
 using Repository.Helpers.Models;
 using Repository.Models;
@@ -151,7 +153,7 @@ namespace Repository.Persistence.Repository
                                     ResolutionObject = fishQuota.A009objetoResolucion
                                 };
                     }
-                    else if(numberResolution == 0 && initialValidityDate != null && finalValidityDate == null)
+                    else if (numberResolution == 0 && initialValidityDate != null && finalValidityDate == null)
                     {
                         query = from fishQuota in _context.CupostT009CuotaPecesPais
                                 where (fishQuota.A009fechaInicialVigencia >= initialDate)
@@ -239,7 +241,7 @@ namespace Repository.Persistence.Repository
                                 }
                     );
 
-                    if(fishQuota.FishQuotaAmounts != null)
+                    if (fishQuota.FishQuotaAmounts != null)
                     {
                         _context.SaveChanges();
                         SaveFishQuotaAmount(identity, fishQuota.FishQuotaAmounts, false);
@@ -283,21 +285,13 @@ namespace Repository.Persistence.Repository
                     }
                     else
                     {
-                        if (supportDocumentsRemoved != null)
-                        {
-                            UpdateDocumentsRemoved(identity, supportDocumentsRemoved);
-                        }
+
+                        UpdateDocumentsRemoved(identity, supportDocumentsRemoved, code);
+
 
                         foreach (var document in supportDocuments)
                         {
-                            if (document.tempAction == "add")
-                            {
-                                SaveDocuments(identity, document);
-                            }
-                            else
-                            {
-                                UpdateDocument(identity, document, code);
-                            }
+                            UpdateDocument(identity, document, code);
                         }
                     }
                     return ResponseManager.generaRespuestaGenerica("Se guardo correctamente", "", token, false);
@@ -358,12 +352,13 @@ namespace Repository.Persistence.Repository
         /// <param name="code"></param>
         public void UpdateDocument(ClaimsIdentity identity, SupportDocuments document, decimal code = 0)
         {
-            
-            string uri = _context.AdmintT009Documentos.Where(d => d.A009documento == document.attachmentName && d.A009estadoRegistro == StringHelper.estadoActivo).Select(d => d.A009url).FirstOrDefault() ?? "";
+
+            Metodos metodo = new Metodos(_context);
+
+            var uri = metodo.GuardarArchivoFtp(document);
 
             AdmintT009Documento docNuevo = new AdmintT009Documento();
             docNuevo.A009fechaCreacion = DateTime.Now;
-            docNuevo.A009fechaModificacion = DateTime.Now;
             docNuevo.A009codigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             docNuevo.A009estadoRegistro = StringHelper.estadoActivo;
             docNuevo.A009codigoParametricaTipoDocumento = 25;
@@ -372,23 +367,18 @@ namespace Repository.Persistence.Repository
             docNuevo.A009documento = document.attachmentName ?? "";
             docNuevo.A009descripcion = document.attachmentName ?? "";
             docNuevo.A009url = uri;
-            docNuevo.PkT009codigo = document.code;
 
-            _context.AdmintT009Documentos.Update(docNuevo);
+            _context.AdmintT009Documentos.Add(docNuevo);
             _context.SaveChanges();
-
-            decimal codeFishQuotaDocument = _context.CupostT024RlCuotaPecesPaisDocumento.Where(d => d.A024CodigoDocumento == document.code && d.A024EstadoRegistro == StringHelper.estadoActivo).Select(d => d.Pk_T024Codigo).FirstOrDefault();
 
             CupostT024RlCuotaPecesPaisDocumento cuotaPecesPaisDocumento = new CupostT024RlCuotaPecesPaisDocumento();
             cuotaPecesPaisDocumento.A024CodigoDocumento = docNuevo.PkT009codigo;
             cuotaPecesPaisDocumento.A024CodigoCuotaPecesPais = code;
             cuotaPecesPaisDocumento.A024FechaCreacion = DateTime.Now;
-            cuotaPecesPaisDocumento.A024FechaModificacion = DateTime.Now;
             cuotaPecesPaisDocumento.A024UsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             cuotaPecesPaisDocumento.A024EstadoRegistro = StringHelper.estadoActivo;
-            cuotaPecesPaisDocumento.Pk_T024Codigo = codeFishQuotaDocument;
 
-            _context.CupostT024RlCuotaPecesPaisDocumento.Update(cuotaPecesPaisDocumento);
+            _context.CupostT024RlCuotaPecesPaisDocumento.Add(cuotaPecesPaisDocumento);
             _context.SaveChanges();
         }
 
@@ -409,7 +399,7 @@ namespace Repository.Persistence.Repository
             {
                 fishQuota.A009codigoUsuarioModificacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 fishQuota.A009fechaModificacion = DateTime.Now;
-                fishQuota.A009estadoRegistro = StringHelper.estadoInactivo; 
+                fishQuota.A009estadoRegistro = StringHelper.estadoInactivo;
             }
             _context.SaveChanges();
             return ResponseManager.generaRespuestaGenerica("Se elimino correctamente", "", token, false);
@@ -449,10 +439,10 @@ namespace Repository.Persistence.Repository
                         A009fechaModificacion = DateTime.Now
                     });
 
-                    if(fishQuota.FishQuotaAmounts != null && fishQuota.FishQuotaAmountsRemoved != null)
+                    if (fishQuota.FishQuotaAmounts != null)
                     {
                         _context.SaveChanges();
-                        UpdateFishQuotaAmount(identity, fishQuota.Code, fishQuota.FishQuotaAmounts, fishQuota.FishQuotaAmountsRemoved);
+                        UpdateFishQuotaAmount(identity, fishQuota.Code, fishQuota.FishQuotaAmounts);
                         ValidateDocumentAction(identity, fishQuota.SupportDocuments, true, fishQuota.Code, fishQuota.SupportDocumentsRemoved);
                         return ResponseManager.generaRespuestaGenerica("La información se guardo con éxito", "", token, false);
                     }
@@ -540,7 +530,7 @@ namespace Repository.Persistence.Repository
         /// </summary>
         /// <param name="fishQuota"></param>
         /// <returns></returns>
-        public Responses UpdateFishQuotaAmount(ClaimsIdentity identity, decimal code, List<FishQuotaAmount> fishQuotasAmount, List<FishQuotaAmount> fishQuotaAmountsRemoved)
+        public Responses UpdateFishQuotaAmount(ClaimsIdentity identity, decimal code, List<FishQuotaAmount> fishQuotasAmount)
         {
             var token = jwtAuthenticationManager.generarJWT(identity);
             if (token == null)
@@ -549,39 +539,38 @@ namespace Repository.Persistence.Repository
             }
             try
             {
-                if (fishQuotaAmountsRemoved != null)
-                {
-                    UpdateFishQuotaAmountRemoved(identity, code, fishQuotaAmountsRemoved);
-                }
+
+                UpdateFishQuotaAmountRemoved(identity, code);
+
 
                 if (fishQuotasAmount != null)
                 {
                     foreach (var fishQuota in fishQuotasAmount)
                     {
-                        if (fishQuota.ActionTemp == 0)
+                        var specie = _context.AdmintT005Especimen.Where(e => e.A005nombreComun == fishQuota.speciesNameComun).FirstOrDefault();
+                        if (specie == null)
                         {
-                            var region = _context.AdmintT008Parametricas.Where(p => p.PkT008codigo == fishQuota.Region).FirstOrDefault();
-
-                            if (fishQuota.CodeFishQuotaAmount != 0)
-                            {
-                                _context.Update(new CupostT010CantidadCuotaPecesPai
-                                {
-                                    PkT010codigo = fishQuota.CodeFishQuotaAmount,
-                                    A010codigoEspecimen = fishQuota.SpeciesCode == 0 ? fishQuota.Group : fishQuota.SpeciesCode,
-                                    A010cuota = fishQuota.Quota,
-                                    A010total = fishQuota.Total,
-                                    A010codigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value),
-                                    A010codigoCuotaPecesPais = code,
-                                    A0010codigoParametricaRegion = region == null ? 0 : region.PkT008codigo,
-                                    A010estadoRegistro = StringHelper.estadoActivo,
-                                    A010fechaCreacion = DateTime.Now,
-                                    A010fechaModificacion = DateTime.Now
-                                });
-                                _context.SaveChanges();
-                            }
+                            UpdateSpeciesName(identity, fishQuota.SpeciesCode, fishQuota.speciesNameComun != null ? fishQuota.speciesNameComun : "");
                         }
+
+                        var region = _context.AdmintT008Parametricas.Where(a => a.A008valor == fishQuota.NameRegion).FirstOrDefault();
+
+                        _context.CupostT010CantidadCuotaPecesPais.Add(
+                                    new CupostT010CantidadCuotaPecesPai
+                                    {
+                                        A010codigoEspecimen = fishQuota.SpeciesCode == 0 ? fishQuota.Group : fishQuota.SpeciesCode,
+                                        A010cuota = fishQuota.Quota,
+                                        A010total = fishQuota.Total,
+                                        A010codigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+                                        A010codigoCuotaPecesPais = code,
+                                        A0010codigoParametricaRegion = region == null ? 0 : region.PkT008codigo,
+                                        A010estadoRegistro = StringHelper.estadoActivo,
+                                        A010fechaCreacion = DateTime.Now,
+                                    }
+                        );
+                        _context.SaveChanges();
                     }
-                    SaveFishQuotaAmount(identity, fishQuotasAmount, true, code);
+
                     return ResponseManager.generaRespuestaGenerica("La información se guardo con éxito", "", token, false);
                 }
                 else
@@ -630,34 +619,19 @@ namespace Repository.Persistence.Repository
         /// </summary>
         /// <param name="code"></param>
         /// <param name="fishQuotaAmountsRemoved"></param>
-        public void UpdateFishQuotaAmountRemoved(ClaimsIdentity identity, decimal code, List<FishQuotaAmount> fishQuotaAmountsRemoved)
+        public void UpdateFishQuotaAmountRemoved(ClaimsIdentity identity, decimal code)
         {
-            if (fishQuotaAmountsRemoved != null)
-            {
-                foreach (var fishQuotaAmount in fishQuotaAmountsRemoved)
-                {
-                    if (fishQuotaAmount.CodeFishQuotaAmount != 0)
-                    {
-                        var region = _context.AdmintT008Parametricas.Where(p => p.PkT008codigo == fishQuotaAmount.Region).FirstOrDefault();
 
-                        _context.Update(new CupostT010CantidadCuotaPecesPai
-                        {
-                            PkT010codigo = fishQuotaAmount.CodeFishQuotaAmount,
-                            //A010codigoGrupo = fishQuota.CodeGrupe, QUEMADO codigo grupo
-                            A010codigoEspecimen = fishQuotaAmount.SpeciesCode,
-                            A010cuota = fishQuotaAmount.Quota,
-                            A010total = fishQuotaAmount.Total,
-                            A010codigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value),
-                            A010codigoCuotaPecesPais = code,
-                            A0010codigoParametricaRegion = region == null ? 0 : region.PkT008codigo,
-                            A010estadoRegistro = StringHelper.estadoInactivo,
-                            A010fechaCreacion = DateTime.Now,
-                            A010fechaModificacion = DateTime.Now
-                        });
-                        _context.SaveChanges();
-                    }
-                }
-            }
+
+            var cuotasPecesDB = _context.CupostT010CantidadCuotaPecesPais
+                                           .Where(p => p.A010codigoCuotaPecesPais == code)
+                                           .ToList();
+
+            if (!cuotasPecesDB.Any())
+                return;
+
+            _context.CupostT010CantidadCuotaPecesPais.RemoveRange(cuotasPecesDB);
+            _context.SaveChanges();
         }
 
         /// <summary>
@@ -720,7 +694,9 @@ namespace Repository.Persistence.Repository
 
             foreach (var docs in documentos)
             {
-                docSoporte.Add(metodo.CargarArchivoFtp(docs, usuraio, clave));
+                var documento = metodo.CargarArchivoFtp(docs, usuraio, clave);
+                if (!String.IsNullOrEmpty(documento.base64Attachment))
+                    docSoporte.Add(documento);
             }
 
             return ResponseManager.generaRespuestaGenerica("", docSoporte, token, false);
@@ -730,32 +706,17 @@ namespace Repository.Persistence.Repository
         /// Actualiza documentos soporte eliminados
         /// </summary>
         /// <param name="documentsRemoved"></param>
-        public void UpdateDocumentsRemoved(ClaimsIdentity identity, List<SupportDocuments> documentsRemoved)
+        public void UpdateDocumentsRemoved(ClaimsIdentity identity, List<SupportDocuments> documentsRemoved, decimal code)
         {
-            if (documentsRemoved != null)
-            {
-                var documentCodes = documentsRemoved.Select(document => document.code).ToList();
+            var documentosDB = _context.CupostT024RlCuotaPecesPaisDocumento
+                              .Where(p => p.A024CodigoCuotaPecesPais == code)
+                              .ToList();
 
-                var documentUpdates = _context.AdmintT009Documentos.Where(item => documentCodes.Contains(item.PkT009codigo)).ToList();
+            if (!documentosDB.Any())
+                return;
 
-                foreach (var documentUpdate in documentUpdates)
-                {
-                    documentUpdate.A009codigoUsuarioModificacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                    documentUpdate.A009estadoRegistro = StringHelper.estadoInactivo;
-                    documentUpdate.A009fechaModificacion = DateTime.Now;
-
-                    CupostT024RlCuotaPecesPaisDocumento? fishQuotaCountryDocument = _context.CupostT024RlCuotaPecesPaisDocumento.FirstOrDefault(item => item.A024CodigoDocumento == documentUpdate.PkT009codigo);
-
-                    if (fishQuotaCountryDocument != null)
-                    {
-                        fishQuotaCountryDocument.A024UsuarioModificacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                        fishQuotaCountryDocument.A024EstadoRegistro = StringHelper.estadoInactivo;
-                        fishQuotaCountryDocument.A024FechaModificacion = DateTime.Now;
-                    }
-                }
-
-                _context.SaveChanges();
-            }
+            _context.CupostT024RlCuotaPecesPaisDocumento.RemoveRange(documentosDB);
+            _context.SaveChanges();
         }
 
         /// <summary>

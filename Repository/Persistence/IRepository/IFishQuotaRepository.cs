@@ -18,14 +18,14 @@ namespace Repository.Persistence.IRepository
         public Responses DeleteFishQuota(ClaimsIdentity identity, int id);
         public Responses UpdateFishQuota(ClaimsIdentity identity, FishQuota fishQuota);
         public Responses SaveFishQuotaAmount(ClaimsIdentity identity, List<FishQuotaAmount> fishQuotas, bool actionEdit, decimal code = 0);
-        public Responses UpdateFishQuotaAmount(ClaimsIdentity identity, decimal code, List<FishQuotaAmount> fishQuotasAmount, List<FishQuotaAmount> fishQuotaAmountsRemoved);
+        public Responses UpdateFishQuotaAmount(ClaimsIdentity identity, decimal code, List<FishQuotaAmount> fishQuotasAmount);
         public Responses ValidateDocumentAction(ClaimsIdentity identity, List<SupportDocuments> supportDocuments, bool actionEdit, decimal code = 0, List<SupportDocuments>? supportDocumentsRemoved = null);
         public void SaveDocuments(ClaimsIdentity identity, SupportDocuments supportDocuments);
         public void UpdateDocument(ClaimsIdentity identity, SupportDocuments document, decimal code = 0);
         public Responses GetSupportDocument(ClaimsIdentity identity, decimal code);
         public Responses GetSpecies(ClaimsIdentity identity);
-        public void UpdateFishQuotaAmountRemoved(ClaimsIdentity identity, decimal code, List<FishQuotaAmount> fishQuotaAmountsRemoved);
-        public void UpdateDocumentsRemoved(ClaimsIdentity identity, List<SupportDocuments> documentsRemoved);
+        public void UpdateFishQuotaAmountRemoved(ClaimsIdentity identity, decimal code);
+        public void UpdateDocumentsRemoved(ClaimsIdentity identity, List<SupportDocuments> documentsRemoved, decimal code);
         public void UpdateSpeciesName(ClaimsIdentity identity, decimal speciesCode, string speciesName);
     }
 }

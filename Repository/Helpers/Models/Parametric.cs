@@ -141,59 +141,69 @@ namespace Repository.Helpers.Models
         [ExcludeFromCodeCoverage]
         public  SupportDocuments CargarArchivoFtp(AdmintT009Documento doc, string usuraio, string clave)
         {
-
-            bool esPdf = doc.A009url.Contains(".pdf", System.StringComparison.CurrentCultureIgnoreCase);
-            bool esDocx = doc.A009url.Contains(".docx", System.StringComparison.CurrentCultureIgnoreCase);
-            bool esJpeg = doc.A009url.Contains(".jpeg", System.StringComparison.CurrentCultureIgnoreCase);
-            bool esPng = doc.A009url.Contains(".png", System.StringComparison.CurrentCultureIgnoreCase);
-            bool esJpg = doc.A009url.Contains(".jpg", System.StringComparison.CurrentCultureIgnoreCase);
-            bool esXlsx = doc.A009url.Contains(".xlsx", System.StringComparison.CurrentCultureIgnoreCase);
-
-            #pragma warning disable SYSLIB0014
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(doc.A009url);
-            request.Method = WebRequestMethods.Ftp.DownloadFile;
-
-            request.Credentials = new NetworkCredential(usuraio, clave);
-
-            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-
-            var base64 = ConvertToBase64(responseStream);
-
-            string tipoAdjun = "";
-
-            if (esPdf)
+            try
             {
-                tipoAdjun = "application/pdf";
+
+                bool esPdf = doc.A009url.Contains(".pdf", System.StringComparison.CurrentCultureIgnoreCase);
+                bool esDocx = doc.A009url.Contains(".docx", System.StringComparison.CurrentCultureIgnoreCase);
+                bool esJpeg = doc.A009url.Contains(".jpeg", System.StringComparison.CurrentCultureIgnoreCase);
+                bool esPng = doc.A009url.Contains(".png", System.StringComparison.CurrentCultureIgnoreCase);
+                bool esJpg = doc.A009url.Contains(".jpg", System.StringComparison.CurrentCultureIgnoreCase);
+                bool esXlsx = doc.A009url.Contains(".xlsx", System.StringComparison.CurrentCultureIgnoreCase);
+
+#pragma warning disable SYSLIB0014
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(doc.A009url);
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+
+                request.Credentials = new NetworkCredential(usuraio, clave);
+
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                Stream responseStream = response.GetResponseStream();
+
+                var base64 = ConvertToBase64(responseStream);
+
+                string tipoAdjun = "";
+
+                if (esPdf)
+                {
+                    tipoAdjun = "application/pdf";
+                }
+                else if (esDocx)
+                {
+                    tipoAdjun = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                }
+                else if (esJpeg)
+                {
+                    tipoAdjun = "image/jpeg";
+                }
+                else if (esPng)
+                {
+                    tipoAdjun = "image/png";
+                }
+                else if (esJpg)
+                {
+                    tipoAdjun = "image/jpg";
+                }
+                else if (esXlsx)
+                {
+                    tipoAdjun = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                }
+
+                SupportDocuments docSoporte = new SupportDocuments();
+                docSoporte.code = doc.PkT009codigo;
+                docSoporte.base64Attachment = "data:" + tipoAdjun + ";base64," + base64;
+                docSoporte.attachmentName = doc.A009documento;
+                docSoporte.attachmentType = tipoAdjun;
+
+                return docSoporte;
+
             }
-            else if (esDocx)
+            catch (Exception ex)
             {
-                tipoAdjun = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-            }
-            else if (esJpeg)
-            {
-                tipoAdjun = "image/jpeg";
-            }
-            else if (esPng)
-            {
-                tipoAdjun = "image/png";
-            }
-            else if (esJpg)
-            {
-                tipoAdjun = "image/jpg";
-            }
-            else if (esXlsx)
-            {
-                tipoAdjun = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Console.WriteLine($"Error inesperado: {ex.Message}");
+                return new SupportDocuments();
             }
 
-            SupportDocuments docSoporte = new SupportDocuments();
-            docSoporte.code = doc.PkT009codigo;
-            docSoporte.base64Attachment = "data:" + tipoAdjun + ";base64," + base64;
-            docSoporte.attachmentName = doc.A009documento;
-            docSoporte.attachmentType = tipoAdjun;
-
-            return docSoporte;
         }
 
         public string ConvertToBase64(Stream stream)
