@@ -133,9 +133,10 @@ namespace Repository.Helpers.Models
             {
                 // Registra o notifica cualquier otra excepción
                 Console.WriteLine($"Error inesperado: {ex.Message}");
+                return "";
             }
 
-            return "";
+           
         }
 
         [ExcludeFromCodeCoverage]

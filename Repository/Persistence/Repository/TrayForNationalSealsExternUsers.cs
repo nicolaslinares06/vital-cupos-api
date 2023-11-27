@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Policy;
 using System.Security.Principal;
 using Web.Models;
 using static Repository.Helpers.Models.ModelsAppSettings;
@@ -328,32 +329,34 @@ namespace Repository.Persistence.Repository
                     GuardarAdjuntoAnexosRespuestas(request.attachedAnnexes, solicitud.Pk_T019Codigo, Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value), ipAddress, true);
                 }
                 var url = metodo.GuardarArchivoFtp(request.invoiceAttachment);
+                if(!String.IsNullOrEmpty(url))
+                {
+                    AdmintT009Documento docNuevoFactura = new AdmintT009Documento();
+                    docNuevoFactura.A009fechaCreacion = DateTime.Now;
+                    docNuevoFactura.A009codigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                    docNuevoFactura.A009estadoRegistro = StringHelper.estadoActivo;
+                    docNuevoFactura.A009codigoParametricaTipoDocumento = StringHelper.tipoDocumentoAdjuntoFactura;
+                    docNuevoFactura.A009firmaDigital = "firma";
+                    docNuevoFactura.A009codigoPlantilla = 1;
+                    docNuevoFactura.A009documento = request.invoiceAttachment.attachmentName != null ? request.invoiceAttachment.attachmentName : "";
+                    docNuevoFactura.A009descripcion = request.invoiceAttachment.attachmentName != null ? request.invoiceAttachment.attachmentName : "";
+                    docNuevoFactura.A009url = url;
 
-                AdmintT009Documento docNuevoFactura = new AdmintT009Documento();
-                docNuevoFactura.A009fechaCreacion = DateTime.Now;
-                docNuevoFactura.A009codigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                docNuevoFactura.A009estadoRegistro = StringHelper.estadoActivo;
-                docNuevoFactura.A009codigoParametricaTipoDocumento = StringHelper.tipoDocumentoAdjuntoFactura;
-                docNuevoFactura.A009firmaDigital = "firma";
-                docNuevoFactura.A009codigoPlantilla = 1;
-                docNuevoFactura.A009documento = request.invoiceAttachment.attachmentName != null ? request.invoiceAttachment.attachmentName : "";
-                docNuevoFactura.A009descripcion = request.invoiceAttachment.attachmentName != null ? request.invoiceAttachment.attachmentName : "";
-                docNuevoFactura.A009url = url;
+                    _context.AdmintT009Documentos.Add(docNuevoFactura);
+                    _context.SaveChanges();
+                    met.Auditoria(ipAddress, codigoUsuario, ModuleManager.smBandejaSolicitudPrecintosNacionalesUsuarioExterno, null, null, null, 2, docNuevoFactura, docNuevoFactura.PkT009codigo.ToString());
 
-                _context.AdmintT009Documentos.Add(docNuevoFactura);
-                _context.SaveChanges();
-                met.Auditoria(ipAddress, codigoUsuario, ModuleManager.smBandejaSolicitudPrecintosNacionalesUsuarioExterno, null, null, null, 2, docNuevoFactura, docNuevoFactura.PkT009codigo.ToString());
+                    CupostT020RlSolicitudesDocumento rlDocNuev = new CupostT020RlSolicitudesDocumento();
+                    rlDocNuev.A020FechaCreacion = DateTime.Now;
+                    rlDocNuev.A020EstadoRegistro = StringHelper.estadoActivo;
+                    rlDocNuev.A020CodigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                    rlDocNuev.A020CodigoDocumento = docNuevoFactura.PkT009codigo;
+                    rlDocNuev.A020CodigoSolicitud = solicitud.Pk_T019Codigo;
 
-                CupostT020RlSolicitudesDocumento rlDocNuev = new CupostT020RlSolicitudesDocumento();
-                rlDocNuev.A020FechaCreacion = DateTime.Now;
-                rlDocNuev.A020EstadoRegistro = StringHelper.estadoActivo;
-                rlDocNuev.A020CodigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                rlDocNuev.A020CodigoDocumento = docNuevoFactura.PkT009codigo;
-                rlDocNuev.A020CodigoSolicitud = solicitud.Pk_T019Codigo;
-
-                _context.CupostT020RlSolicitudesDocumento.Add(rlDocNuev);
-                _context.SaveChanges();
-                met.Auditoria(ipAddress, codigoUsuario, ModuleManager.smBandejaSolicitudPrecintosNacionalesUsuarioExterno, null, null, null, 2, rlDocNuev, rlDocNuev.Pk_T020Codigo.ToString());
+                    _context.CupostT020RlSolicitudesDocumento.Add(rlDocNuev);
+                    _context.SaveChanges();
+                    met.Auditoria(ipAddress, codigoUsuario, ModuleManager.smBandejaSolicitudPrecintosNacionalesUsuarioExterno, null, null, null, 2, rlDocNuev, rlDocNuev.Pk_T020Codigo.ToString());
+                }
 
                 return ResponseManager.generaRespuestaGenerica(StringHelper.msgGuardadoExitoso, true, token, false);
             }catch(Exception ex)
@@ -674,91 +677,92 @@ namespace Repository.Persistence.Repository
                                 DocCarta.base64Attachment = doc.base64Attachment;
                             }
                         }
+             
+                    }
 
-                        solicitud.date = sol.A019FechaSolicitud;
-                        solicitud.representativeCity = sol.A019CodigoCiudad;
-                        solicitud.representativeDepartment = _context.AdmintT004Ciudads
-                                                                    .Where(d => d.PkT004codigo == sol.A019CodigoCiudad)
-                                                                    .Select(d => d.A004codigoDepartamento).FirstOrDefault();
-                        solicitud.deliveryAddress = sol.A019DireccionEntrega;
-                        solicitud.quantity = sol.A019Cantidad;
-                        solicitud.specimens = sol.A019CodigoEspecieExportar;
-                        solicitud.minorLength = sol.A019LongitudMenor;
-                        solicitud.majorLength = sol.A019LongitudMayor;
-                        solicitud.representativeDate = sol.A019FechaConsignacion;
-                        solicitud.observations = sol.A019Observaciones;
-                        solicitud.response = sol.A019Respuesta;
-                        solicitud.invoiceAttachment = DocFactura;
-                        solicitud.attachedAnnexes = DocsAnexos;
-                        solicitud.letterAttachment = DocCarta;
-                        solicitud.responseAttachments = DocsRespuesta;
-                        solicitud.registrationDate = sol.A019FechaRadicacion;
-                        solicitud.statusChangeDate = sol.A019FechaCambioEstado;
-                        solicitud.withdrawalObservations = sol.A019ObservacionesDesistimiento;
-                        solicitud.requestType = sol.A019TipoSolicitud;
+                    solicitud.date = sol.A019FechaSolicitud;
+                    solicitud.representativeCity = sol.A019CodigoCiudad;
+                    solicitud.representativeDepartment = _context.AdmintT004Ciudads
+                                                                .Where(d => d.PkT004codigo == sol.A019CodigoCiudad)
+                                                                .Select(d => d.A004codigoDepartamento).FirstOrDefault();
+                    solicitud.deliveryAddress = sol.A019DireccionEntrega;
+                    solicitud.quantity = sol.A019Cantidad;
+                    solicitud.specimens = sol.A019CodigoEspecieExportar;
+                    solicitud.minorLength = sol.A019LongitudMenor;
+                    solicitud.majorLength = sol.A019LongitudMayor;
+                    solicitud.representativeDate = sol.A019FechaConsignacion;
+                    solicitud.observations = sol.A019Observaciones;
+                    solicitud.response = sol.A019Respuesta;
+                    solicitud.invoiceAttachment = DocFactura;
+                    solicitud.attachedAnnexes = DocsAnexos;
+                    solicitud.letterAttachment = DocCarta;
+                    solicitud.responseAttachments = DocsRespuesta;
+                    solicitud.registrationDate = sol.A019FechaRadicacion;
+                    solicitud.statusChangeDate = sol.A019FechaCambioEstado;
+                    solicitud.withdrawalObservations = sol.A019ObservacionesDesistimiento;
+                    solicitud.requestType = sol.A019TipoSolicitud;
 
 
-                        if (solicitud.requestType == StringHelper.tipoSolictudPrecintos || solicitud.requestType == 10200)
+                    if (solicitud.requestType == StringHelper.tipoSolictudPrecintos || solicitud.requestType == 10200)
+                    {
+                        var numeraciones = _context.CupostT027NumeracionesSolicitud.Where(p => p.A027CodigoSolicitud == codigoSolicitud && p.A027EstadoRegistro == StringHelper.estadoActivo).ToList();
+
+                        List<Numeration> numer = new List<Numeration>();
+
+                        foreach (var num in numeraciones)
                         {
-                            var numeraciones = _context.CupostT027NumeracionesSolicitud.Where(p => p.A027CodigoSolicitud == codigoSolicitud && p.A027EstadoRegistro == StringHelper.estadoActivo).ToList();
+                            Numeration n = new Numeration();
 
-                            List<Numeration> numer = new List<Numeration>();
+                            n.initial = num.A027NumeroInternoInicial;
+                            n.final = num.A027NumeroInternoFinal;
 
-                            foreach (var num in numeraciones)
-                            {
-                                Numeration n = new Numeration();
-
-                                n.initial = num.A027NumeroInternoInicial;
-                                n.final = num.A027NumeroInternoFinal;
-
-                                numer.Add(n);
-                            }
-
-                            solicitud.numerations = numer;
+                            numer.Add(n);
                         }
-                        if (solicitud.requestType == StringHelper.tipoSolictudMarquillasMinisterio)
+
+                        solicitud.numerations = numer;
+                    }
+                    if (solicitud.requestType == StringHelper.tipoSolictudMarquillasMinisterio)
+                    {
+                        var salvoConducto = _context.CupostT028SalvoconductosSolicitud.Where(p => p.A028CodigoSolicitud == codigoSolicitud && p.A028EstadoRegistro == StringHelper.estadoActivo).ToList();
+
+                        List<SafeGuardNumbersModel> safe = new List<SafeGuardNumbersModel>();
+
+                        foreach (var saf in salvoConducto)
                         {
-                            var salvoConducto = _context.CupostT028SalvoconductosSolicitud.Where(p => p.A028CodigoSolicitud == codigoSolicitud && p.A028EstadoRegistro == StringHelper.estadoActivo).ToList();
 
-                            List<SafeGuardNumbersModel> safe = new List<SafeGuardNumbersModel>();
+                            var numero = _context.CupostT017ActaVisitaDocSalvoConducto.Where(p => p.PK_T017Codigo == saf.A028CodigoActaVisitaSalvoconducto).FirstOrDefault();
+                            SafeGuardNumbersModel n = new SafeGuardNumbersModel();
 
-                            foreach (var saf in salvoConducto)
-                            {
+                            n.id = Convert.ToInt32(saf.Pk_T028Codigo);
+                            n.number = numero != null ? numero.A017SalvoConductoNumero.ToString() : "";
 
-                                var numero = _context.CupostT017ActaVisitaDocSalvoConducto.Where(p => p.PK_T017Codigo == saf.A028CodigoActaVisitaSalvoconducto).FirstOrDefault();
-                                SafeGuardNumbersModel n = new SafeGuardNumbersModel();
+                            safe.Add(n);
+                        }
 
-                                n.id = Convert.ToInt32(saf.Pk_T028Codigo);
-                                n.number = numero != null ? numero.A017SalvoConductoNumero.ToString() : "";
+                        solicitud.safeGuardNumbers = safe;
 
-                                safe.Add(n);
-                            }
+                        var cortes = _context.CupostT029CortesPielSolicitud.Where(p => p.A029CodigoSolicitud == codigoSolicitud && p.A029EstadoRegistro == StringHelper.estadoActivo).ToList();
 
-                            solicitud.safeGuardNumbers = safe;
+                        List<CuttingSaveModel> cort = new List<CuttingSaveModel>();
 
-                            var cortes = _context.CupostT029CortesPielSolicitud.Where(p => p.A029CodigoSolicitud == codigoSolicitud && p.A029EstadoRegistro == StringHelper.estadoActivo).ToList();
+                        foreach (var cor in cortes)
+                        {
+                            var fraccion = _context.CupostT008CortePiels.Where(p => p.A008codigo == cor.A029CodigoCortePiel).FirstOrDefault();
+                            CuttingSaveModel n = new CuttingSaveModel();
 
-                            List<CuttingSaveModel> cort = new List<CuttingSaveModel>();
+                            n.totalAreaSelected = Convert.ToInt32(cor.A029AreaTotal);
+                            n.amountSelected = Convert.ToInt32(cor.A029Cantidad);
+                            n.fractionType = fraccion != null ? fraccion.A008tipoParte : "";
 
-                            foreach (var cor in cortes)
-                            {
-                                var fraccion = _context.CupostT008CortePiels.Where(p => p.A008codigo == cor.A029CodigoCortePiel).FirstOrDefault();
-                                CuttingSaveModel n = new CuttingSaveModel();
+                            cort.Add(n);
+                        }
 
-                                n.totalAreaSelected = Convert.ToInt32(cor.A029AreaTotal);
-                                n.amountSelected = Convert.ToInt32(cor.A029Cantidad);
-                                n.fractionType = fraccion != null ? fraccion.A008tipoParte : "";
-
-                                cort.Add(n);
-                            }
-
-                            solicitud.cuttingSave = cort;
+                        solicitud.cuttingSave = cort;
 
 
-                            if (sol.A019EstadoSolicitud == _estadosCuposSettings.Desistido.IdEstado)
-                            {
-                                solicitud.requestStatus = _estadosCuposSettings.Desistido.ValorEstado;
-                            }
+                        if (sol.A019EstadoSolicitud == _estadosCuposSettings.Desistido.IdEstado)
+                        {
+                            solicitud.requestStatus = _estadosCuposSettings.Desistido.ValorEstado;
                         }
                     }
                 }
@@ -869,32 +873,34 @@ namespace Repository.Persistence.Repository
                     }
 
                     var url = metodo.GuardarArchivoFtp(request.invoiceAttachment);
+                    if(!String.IsNullOrEmpty(url))
+                    {
+                        AdmintT009Documento docNuevoFactura = new AdmintT009Documento();
+                        docNuevoFactura.A009fechaCreacion = DateTime.Now;
+                        docNuevoFactura.A009codigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                        docNuevoFactura.A009estadoRegistro = StringHelper.estadoActivo;
+                        docNuevoFactura.A009codigoParametricaTipoDocumento = StringHelper.tipoDocumentoAdjuntoFactura;
+                        docNuevoFactura.A009firmaDigital = "firma";
+                        docNuevoFactura.A009codigoPlantilla = 1;
+                        docNuevoFactura.A009documento = request.invoiceAttachment.attachmentName != null ? request.invoiceAttachment.attachmentName : "";
+                        docNuevoFactura.A009descripcion = request.invoiceAttachment.attachmentName != null ? request.invoiceAttachment.attachmentName : "";
+                        docNuevoFactura.A009url = url;
 
-                    AdmintT009Documento docNuevoFactura = new AdmintT009Documento();
-                    docNuevoFactura.A009fechaCreacion = DateTime.Now;
-                    docNuevoFactura.A009codigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                    docNuevoFactura.A009estadoRegistro = StringHelper.estadoActivo;
-                    docNuevoFactura.A009codigoParametricaTipoDocumento = StringHelper.tipoDocumentoAdjuntoFactura;
-                    docNuevoFactura.A009firmaDigital = "firma";
-                    docNuevoFactura.A009codigoPlantilla = 1;
-                    docNuevoFactura.A009documento = request.invoiceAttachment.attachmentName != null ? request.invoiceAttachment.attachmentName : "";
-                    docNuevoFactura.A009descripcion = request.invoiceAttachment.attachmentName != null ? request.invoiceAttachment.attachmentName : "";
-                    docNuevoFactura.A009url = url;
+                        _context.AdmintT009Documentos.Add(docNuevoFactura);
+                        _context.SaveChanges();
+                        met.Auditoria(ipAddress, codigoUsuario, ModuleManager.smBandejaSolicitudPrecintosNacionalesUsuarioExterno, null, null, null, 2, docNuevoFactura, docNuevoFactura.PkT009codigo.ToString());
 
-                    _context.AdmintT009Documentos.Add(docNuevoFactura);
-                    _context.SaveChanges();
-                    met.Auditoria(ipAddress, codigoUsuario, ModuleManager.smBandejaSolicitudPrecintosNacionalesUsuarioExterno, null, null, null, 2, docNuevoFactura, docNuevoFactura.PkT009codigo.ToString());
+                        CupostT020RlSolicitudesDocumento rlDocNuev = new CupostT020RlSolicitudesDocumento();
+                        rlDocNuev.A020FechaCreacion = DateTime.Now;
+                        rlDocNuev.A020EstadoRegistro = StringHelper.estadoActivo;
+                        rlDocNuev.A020CodigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                        rlDocNuev.A020CodigoDocumento = docNuevoFactura.PkT009codigo;
+                        rlDocNuev.A020CodigoSolicitud = sol.Pk_T019Codigo;
 
-                    CupostT020RlSolicitudesDocumento rlDocNuev = new CupostT020RlSolicitudesDocumento();
-                    rlDocNuev.A020FechaCreacion = DateTime.Now;
-                    rlDocNuev.A020EstadoRegistro = StringHelper.estadoActivo;
-                    rlDocNuev.A020CodigoUsuarioCreacion = Convert.ToDecimal(identity.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-                    rlDocNuev.A020CodigoDocumento = docNuevoFactura.PkT009codigo;
-                    rlDocNuev.A020CodigoSolicitud = sol.Pk_T019Codigo;
-
-                    _context.CupostT020RlSolicitudesDocumento.Add(rlDocNuev);
-                    _context.SaveChanges();
-                    met.Auditoria(ipAddress, codigoUsuario, ModuleManager.smBandejaSolicitudPrecintosNacionalesUsuarioExterno, null, null, null, 2, rlDocNuev, rlDocNuev.Pk_T020Codigo.ToString());
+                        _context.CupostT020RlSolicitudesDocumento.Add(rlDocNuev);
+                        _context.SaveChanges();
+                        met.Auditoria(ipAddress, codigoUsuario, ModuleManager.smBandejaSolicitudPrecintosNacionalesUsuarioExterno, null, null, null, 2, rlDocNuev, rlDocNuev.Pk_T020Codigo.ToString());
+                    }
                 }
 
                 if (request.attachedAnnexesToDelete != null && request.attachedAnnexesToDelete.Count > 0)
@@ -927,6 +933,9 @@ namespace Repository.Persistence.Repository
             {
                 var uri = metodo.GuardarArchivoFtp(doc);
 
+                if (String.IsNullOrEmpty(uri))
+                    continue;
+
                 AdmintT009Documento docNuevo = new AdmintT009Documento();
                 docNuevo.A009fechaCreacion = DateTime.Now;
                 docNuevo.A009codigoUsuarioCreacion = codigoUsuario;
@@ -950,9 +959,10 @@ namespace Repository.Persistence.Repository
                 rlDocNuevo.A020CodigoSolicitud = codigoSolicitud;
 
                 _context.CupostT020RlSolicitudesDocumento.Add(rlDocNuevo);
-                _context.SaveChanges();
+               
                 metodo.Auditoria(ipAddress, Convert.ToInt32(codigoUsuario), ModuleManager.smBandejaSolicitudPrecintosNacionalesUsuarioExterno, null, null, null, 2, rlDocNuevo, rlDocNuevo.Pk_T020Codigo.ToString());
             }
+            _context.SaveChanges();
         }
 
         /// <summary>
