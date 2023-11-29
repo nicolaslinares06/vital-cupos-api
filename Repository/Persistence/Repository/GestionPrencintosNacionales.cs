@@ -862,14 +862,13 @@ namespace Repository.Persistence.Repository
                     PdfWriter writer = PdfWriter.GetInstance(doc, mem);
                     doc.Open();
 
-                    iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(@"..\..\vital-cupos-app\CUPOS_FRONT\wwwroot\images\minambiente-logo.png");
-                    imagen.BorderWidth = 0;
-                    imagen.Alignment = Element.ALIGN_RIGHT;
-                    float percentage = 0.0f;
-                    percentage = 100 / imagen.Width;
-                    imagen.ScalePercent(percentage * 250);
-
-                    doc.Add(imagen);
+                    //iTextSharp.text.Image cabecera = iTextSharp.text.Image.GetInstance(@"..\..\MINAMBIENTE 2022 CUPOS FRONT\CUPOS_FRONT\wwwroot\images\cabecera.png");
+                    iTextSharp.text.Image cabecera = iTextSharp.text.Image.GetInstance(@"..\MADS_CUPOS_WEB\wwwroot\images\cabecera.png");
+                    cabecera.BorderWidth = 0;
+                    cabecera.Alignment = Element.ALIGN_CENTER;
+                    float percentage = 0.0f; percentage = 100 / cabecera.Width;
+                    cabecera.ScalePercent(percentage * 570);
+                    doc.Add(cabecera);
 
                     Chunk texto_1 = new Chunk("Bogotá D.C.\r\n" + "\r\nDoctor(a) o Señor(a)");
                     texto_1.Font = FontFactory.GetFont(FontFactory.HELVETICA, 10);
@@ -1142,17 +1141,21 @@ namespace Repository.Persistence.Repository
                         doc.Add(imagenFirma);
                     }
 
-                    Chunk texto_4 = new Chunk("\r\n" + (director != null ? director.A012primerNombre : "") + " " + (director != null ? director.A012segundoNombre : "") + " " + (director != null ? director.A012primerApellido : "") + " " + (director != null ? director.A012segundoApellido : "") + "\r\nDirector Dirección de Bosques, Biodiversidad y Servicion Ecositémicos\r\n\r\n" + "Elaborado: " + (usuarioElabora != null ? usuarioElabora.A012primerNombre : "") + " " + (usuarioElabora != null ? usuarioElabora.A012primerApellido : "") + " - Analista\r\n" + "Reviso: " + (coordinador != null ? coordinador.A012primerNombre : "") + " " + (coordinador != null ? coordinador.A012primerApellido : ""));
+                    Chunk texto_4 = new Chunk("\r\n" + director.A012primerNombre + " " + director.A012segundoNombre + " " + director.A012primerApellido + " " + director.A012segundoApellido + "\r\nDirector Dirección de Bosques, Biodiversidad y Servicion Ecositémicos\r\n\r\n" + "Elaborado: " + usuarioElabora.A012primerNombre + " " + usuarioElabora.A012primerApellido + " - Analista\r\n" + "Reviso: " + coordinador.A012primerNombre + " " + coordinador.A012primerApellido);
                     texto_4.Font = FontFactory.GetFont(FontFactory.HELVETICA, 10);
                     doc.Add(new Paragraph(texto_4));
 
-                    Chunk pie = new Chunk("Los arriba firmantes declaramos que hemos revisado el presente documento y lo encontramos ajustado a las normas y disposiciones legales y/o técnicas vigentes y, por lo tanto, bajo nuestra responsabilidad lo presentamos para la firma del Remitente");
+                    Chunk pie = new Chunk("\r\n\r\n\r\nLos arriba firmantes declaramos que hemos revisado el presente documento y lo encontramos ajustado a las normas y disposiciones legales y/o técnicas vigentes y, por lo tanto, bajo nuestra responsabilidad lo presentamos para la firma del Remitente\r\n\r\n\r\n");
                     pie.Font = FontFactory.GetFont(FontFactory.HELVETICA, 6);
                     doc.Add(new Paragraph(pie));
 
-                    Chunk informacion = new Chunk("\r\n\r\n\r\nCalle 37 No. 8 - 40\r\nConmutador: +57 6013323400\r\nwww.minambiente.gov.co\r\nBogotá, Colombia");
-                    informacion.Font = FontFactory.GetFont(FontFactory.HELVETICA, 10);
-                    doc.Add(new Paragraph(informacion));
+                    //iTextSharp.text.Image piepagina = iTextSharp.text.Image.GetInstance(@"..\..\MINAMBIENTE 2022 CUPOS FRONT\CUPOS_FRONT\wwwroot\images\piepagina.png");
+                    iTextSharp.text.Image piepagina = iTextSharp.text.Image.GetInstance(@"..\MADS_CUPOS_WEB\wwwroot\images\piepagina.png");
+                    piepagina.BorderWidth = 0;
+                    piepagina.Alignment = Element.ALIGN_CENTER;
+                    float percentagepiepagina = 0.0f; percentagepiepagina = 100 / piepagina.Width;
+                    piepagina.ScalePercent(percentagepiepagina * 570);
+                    doc.Add(piepagina);
 
                     doc.Close();
 
